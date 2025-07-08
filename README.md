@@ -110,7 +110,7 @@ Place clear images of the people whose attendance needs to be recorded in the `f
 
 - [Real face case](real_face.png)
 
-- [attendance taken after real face detcted]( code/attendance_taken.png)
+- [Attendance taken after real face detcted](attendence_taken.png)
 
 - [Fake face case](fake_face.png)
 ---
