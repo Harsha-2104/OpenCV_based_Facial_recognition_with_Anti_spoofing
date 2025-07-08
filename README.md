@@ -49,11 +49,11 @@ Upon verifying liveliness, it matches the live face against a folder of pre-stor
 ```
 Face-AntiSpoofing-Attendance/
 │
-├── faces/                   # Folder with reference face images
-├── attendance_excel.xlsx    # Output Excel sheet (auto-updated)
-├── shape_predictor_68...dat # Facial landmark model
-├── face recognition code.py # Main script to run the system
-└── README.md                # You're here!
+├── faces/                                # Folder with reference face images
+├── attendance_excel.xlsx                 # Output Excel sheet (auto-updated)
+├── shape_predictor_68_face_landmarks.dat # Facial landmark model (You need to download it from online.)
+├── face recognition code.py              # Main script to run the system
+└── README.md                             # You're here!
 ```
 
 ---
@@ -62,8 +62,8 @@ Face-AntiSpoofing-Attendance/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/Face-AntiSpoofing-Attendance.git
-cd Face-AntiSpoofing-Attendance
+[git clone https://github.com/your-username/Face-AntiSpoofing-Attendance.git](https://github.com/Harsha-2104/OpenCV_based_Facial_recognition_with_Anti_spoofing.git)
+cd OpenCV_based_Facial_recognition_with_Anti_spoofing
 ```
 
 ### 2. Install dependencies
@@ -75,9 +75,6 @@ pip install opencv-python dlib face_recognition numpy xlwt xlrd xlutils
 Place clear images of the people whose attendance needs to be recorded in the `faces/` folder. The filename (without extension) should be the person’s name.
 
 ### 4. Run the program
-```bash
-python main.py
-```
 
 ---
 
@@ -121,6 +118,7 @@ python main.py
 
 ##  References
 
+- [Model for face shape predictions](https://www.kaggle.com/datasets/sergiovirahonda/shape-predictor-68-face-landmarksdat?resource=download)
 - [Face Liveness Detection Using CNNs (IEEE 2021)](https://ieeexplore.ieee.org/)
 - [OpenCV Documentation](https://docs.opencv.org/)
 - [dlib facial landmark predictor](http://dlib.net/)
