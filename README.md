@@ -62,7 +62,7 @@ Face-AntiSpoofing-Attendance/
 
 ### 1. Clone the repository
 ```bash
-[git clone https://github.com/your-username/Face-AntiSpoofing-Attendance.git](https://github.com/Harsha-2104/OpenCV_based_Facial_recognition_with_Anti_spoofing.git)
+git clone https://github.com/Harsha-2104/OpenCV_based_Facial_recognition_with_Anti_spoofing.git
 cd OpenCV_based_Facial_recognition_with_Anti_spoofing
 ```
 
