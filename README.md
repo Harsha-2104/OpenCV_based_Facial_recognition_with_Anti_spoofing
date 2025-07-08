@@ -105,7 +105,14 @@ Place clear images of the people whose attendance needs to be recorded in the `f
 -  **Live detection accuracy**: High under varied conditions
 -  **Spoof rejection**: Successfully blocks printed or digital faces
 -  **Excel updates**: Consistently updates without duplication
+  
+- [No face case](No_face_detected.png)
 
+- [Real face case](real_face.png)
+
+- [attendance taken after real face detcted]( code/attendance_taken.png)
+
+- [Fake face case](fake_face.png)
 ---
 
 ##  Future Enhancements
