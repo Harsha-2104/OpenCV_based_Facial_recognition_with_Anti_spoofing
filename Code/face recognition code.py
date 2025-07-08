@@ -16,7 +16,7 @@ required_successful_checks = 1
 real_face_hits = 0
 
 # Load facial landmarks predictor
-predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
+predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat') # modify the model name by adding the location of the model. Ideally placed inside the code folder itself.
 detector = dlib.get_frontal_face_detector()
 
 # Eye Aspect Ratio Calculation
