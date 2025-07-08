@@ -6,5 +6,6 @@ In this folder you need to add your reference pictures of people whom you want t
 
 Example : 
   - 428uy7.png
-  - Harsha.jpg 
- etc., So that when the system marks the attendance in **attendace_excel.xlsx**, The names can be seen in orderly manner. 
+  - Harsha.jpg
+    
+etc., So that when the system marks the attendance in **attendace_excel.xlsx**, The names can be seen in orderly manner. 
