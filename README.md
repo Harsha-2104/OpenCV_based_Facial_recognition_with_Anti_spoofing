@@ -39,7 +39,7 @@ Upon verifying liveliness, it matches the live face against a folder of pre-stor
 ##  Tech Stack
 
 - **Language:** Python
-- **Libraries:** `OpenCV`, `dlib`, `face_recognition`, `numpy`, `xlwt`, `xlrd`, `xlutils`
+- **Libraries:** `OpenCV`, `dlib`, `face_recognition`, `numpy`, `openpyxl`
 - **Model:** `shape_predictor_68_face_landmarks.dat` for landmark extraction
 
 ---
@@ -68,7 +68,7 @@ cd OpenCV_based_Facial_recognition_with_Anti_spoofing
 
 ### 2. Install dependencies
 ```bash
-pip install opencv-python dlib face_recognition numpy xlwt xlrd xlutils
+pip install opencv-python dlib face_recognition numpy openpyxl
 ```
 
 ### 3. Add Reference Images
