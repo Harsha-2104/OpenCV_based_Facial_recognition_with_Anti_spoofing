@@ -2,13 +2,12 @@ import cv2
 import numpy as np
 import face_recognition
 import os
-import xlwt, xlrd
-from xlwt import Workbook
-from xlutils.copy import copy as xl_copy
 from datetime import date
 import time
 import dlib
 from scipy.spatial import distance
+import openpyxl
+from openpyxl import Workbook, load_workbook
 
 # Flags & Counters for Liveness Checks
 consecutive_successful_checks = 0
@@ -16,7 +15,7 @@ required_successful_checks = 1
 real_face_hits = 0
 
 # Load facial landmarks predictor
-predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat') # modify the model name by adding the location of the model. Ideally placed inside the code folder itself.
+predictor = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat')
 detector = dlib.get_frontal_face_detector()
 
 # Eye Aspect Ratio Calculation
@@ -42,7 +41,7 @@ def detect_eye_blink(landmarks):
     ear = (left_ear + right_ear) / 2.0
 
     print(f"EAR: {ear:.3f}")
-    
+
     if ear < EYE_AR_THRESHOLD:
         return True
     return False
@@ -73,6 +72,7 @@ def detect_head_movement(landmarks):
     return distance_moved > HEAD_MOVEMENT_THRESHOLD
 
 def run_liveness_checks(landmarks):
+    # This requires all checks to be true for liveness
     return detect_eye_blink(landmarks) and detect_lip_movement(landmarks) and detect_head_movement(landmarks)
 
 # Load known faces
@@ -91,25 +91,57 @@ for file in os.listdir(images_folder):
             known_face_encodings.append(face_encodings[0])
             known_face_names.append(os.path.splitext(file)[0])
 
-# Initialize Excel file
-rb = xlrd.open_workbook('attendence_excel.xls', formatting_info=True)
-wb = xl_copy(rb)
+# Initialize Excel file using openpyxl
+excel_file_name = 'attendence_excel.xlsx' # Changed to .xlsx
+
+# Check if file exists, if not, create a new workbook
+if not os.path.exists(excel_file_name):
+    wb = Workbook()
+    ws = wb.active # Get the active sheet
+    ws.title = 'Sheet1' # Default sheet title
+    wb.save(excel_file_name)
+
+# Load existing workbook and get input for new sheet name
+wb = load_workbook(excel_file_name)
 inp = input('Please give file name: ')
-sheet1 = wb.add_sheet(str(date.today()) + ',' + inp)
-sheet1.write(0, 0, 'ID NO.')
-sheet1.write(0, 1, 'Attended Time')
-row = 1
+sheet_name = str(date.today()) + ',' + inp
+
+# Check if the sheet already exists, if not create it
+if sheet_name not in wb.sheetnames:
+    sheet1 = wb.create_sheet(sheet_name)
+else:
+    sheet1 = wb[sheet_name]
+
+# Write headers if the sheet is new or empty
+if sheet1.cell(row=1, column=1).value is None: # Check if the first cell is empty
+    sheet1['A1'] = 'ID NO.'
+    sheet1['B1'] = 'Attended Time'
+
+# Find the next available row
+row = sheet1.max_row + 1
+if sheet1.cell(row=1, column=1).value is None: # If the sheet was just created and headers written, start from row 2
+    row = 2
+
 already_attendence_taken = []
+# Load existing attendance data from the current sheet to prevent re-recording
+for r in range(2, sheet1.max_row + 1): # Start from row 2 to skip headers
+    name_in_sheet = sheet1.cell(row=r, column=1).value
+    if name_in_sheet:
+        already_attendence_taken.append(name_in_sheet)
 
 # Video capture setup
 video_capture = cv2.VideoCapture(0)
 FRAME_PROCESSING_FREQUENCY = 5
-DELAY_BETWEEN_FRAMES = 0.1  
+DELAY_BETWEEN_FRAMES = 0.1
 frame_counter = 0
 
 while True:
     ret, frame = video_capture.read()
-    time.sleep(DELAY_BETWEEN_FRAMES)  
+    if not ret:
+        print("Failed to grab frame")
+        break
+
+    time.sleep(DELAY_BETWEEN_FRAMES)
     frame_counter += 1
 
     if frame_counter % FRAME_PROCESSING_FREQUENCY != 0:
@@ -122,11 +154,21 @@ while True:
     face_locations = face_recognition.face_locations(rgb_small_frame)
 
     for (top, right, bottom, left) in face_locations:
-        face_rect = dlib.rectangle(left, top, right, bottom)
+        # Scale back the coordinates for dlib's detector as it works on original size
+        # and then for drawing on the full-size frame
+        top_orig, right_orig, bottom_orig, left_orig = top * 4, right * 4, bottom * 4, left * 4
+
+        face_rect = dlib.rectangle(left, top, right, bottom) # Use scaled down coordinates for landmarks
         landmarks = predictor(gray, face_rect)
 
+        # Draw rectangle around face (on the full-size frame)
+        cv2.rectangle(frame, (left_orig, top_orig), (right_orig, bottom_orig), (0, 255, 0), 2)
+
+
         if run_liveness_checks(landmarks):
-            face_encoding = face_recognition.face_encodings(rgb_small_frame, [face_locations[0]])[0]
+            # Only encode and compare if liveness check passes
+            # Pass only the detected face location to face_encodings for efficiency
+            face_encoding = face_recognition.face_encodings(rgb_small_frame, [(top, right, bottom, left)])[0]
             matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
             name = "Unknown"
 
@@ -135,23 +177,23 @@ while True:
                 name = known_face_names[best_match_index]
 
             if name not in already_attendence_taken and name != "Unknown":
-                sheet1.write(row, 0, name)
-                sheet1.write(row, 1, time.ctime())
+                sheet1.cell(row=row, column=1, value=name)
+                sheet1.cell(row=row, column=2, value=time.ctime())
                 row += 1
                 already_attendence_taken.append(name)
-                wb.save('attendence_excel.xls')
+                wb.save(excel_file_name)
 
 
-            cv2.putText(frame, f"Real Face Detected: {name}", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+            cv2.putText(frame, f"Real Face Detected: {name}", (left_orig, top_orig - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 255, 0), 2)
             print(f"Real Face Detected: {name}")
         else:
-            cv2.putText(frame, "Fake Face Detected", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(frame, "Fake Face Detected", (left_orig, top_orig - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.75, (0, 0, 255), 2)
 
     cv2.imshow('Face Attendance System', frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-wb.save('attendence_excel.xls')
+wb.save(excel_file_name) # Save the workbook one last time
 video_capture.release()
 cv2.destroyAllWindows()
